@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Sensibilidade FF</title>
+    
+    <!-- CSS Embutido -->
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 { margin-bottom: 5px; font-size: 1.5em; }
+        p { margin-bottom: 20px; color: #aaa; }
+        .toggle-buttons button {
+            background-color: #333; color: #fff; border: none; padding: 10px 20px;
+            margin: 5px; border-radius: 5px; cursor: pointer; width: 45%;
+        }
+        .toggle-buttons button.active { background-color: #007bff; }
+        select, button#gerar-btn {
+            width: 100%; padding: 12px; margin-top: 15px; border-radius: 5px;
+            border: 1px solid #333; background-color: #333; color: #fff;
+            box-sizing: border-box;
+        }
+        button#gerar-btn { background-color: #007bff; cursor: pointer; }
+        footer { position: absolute; bottom: 10px; color: #555; font-size: 0.8em; }
+        /* Estilo para a área de resultado e abas */
+        #resultado-sensi { margin-top: 20px; padding: 15px; background-color: #2a2a2a; border-radius: 8px; text-align: left; }
+        #resultado-sensi ul { list-style: none; padding: 0; }
+        #resultado-sensi li { margin-bottom: 5px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sensibilidade / Auxílio</h1>
+        <p>Configure a sensibilidade para usar</p>
+
+        <!-- Botões de Alternância (Sensi/Auxílio) -->
+        <div class="toggle-buttons">
+            <button id="btn-sensi" class="active">Sensi</button>
+            <button id="btn-auxilio">Auxílio</button>
+        </div>
+
+        <!-- Conteúdo da Aba SENSI -->
+        <div id="tab-sensi" class="tab-content active">
+            <select id="marca">
+                <option value="">Selecione a marca</option>
+            </select>
+            <select id="modelo">
+                <option value="">Selecione o modelo</option>
+            </select>
+            <button id="gerar-btn">Gerar</button>
+            <div id="resultado-sensi"></div>
+        </div>
+
+        <!-- Conteúdo da Aba AUXÍLIO -->
+        <div id="tab-auxilio" class="tab-content">
+            <p>Esta aba pode conter dicas de **DPI**, velocidade do ponteiro ou links para tutoriais externos.</p>
+            <p>Funções de "auxílio" ou **cheats** não são suportadas.</p>
+        </div>
+    </div>
+    
+    <footer>
+        Desenvolvido por @nexus.sensix
+    </footer>
+
+    <!-- JavaScript Embutido -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DADOS DE SENSIBILIDADE PARA FREE FIRE (FF) - Expandido para modelos acessíveis
+            const dataFF = {
+                'Samsung': {
+                    'Galaxy J5 Prime': { geral: 85, redDot: 75, mira2x: 68, mira4x: 60 },
+                    'Galaxy A01 Core': { geral: 88, redDot: 78, mira2x: 69, mira4x: 62 },
+                    'Galaxy A06': { geral: 90, redDot: 80, mira2x: 70, mira4x: 60 },
+                    'Galaxy A03s': { geral: 90, redDot: 80, mira2x: 70, mira4x: 65 },
+                    'Galaxy A04e': { geral: 92, redDot: 82, mira2x: 74, mira4x: 68 },
+                    'Galaxy A12': { geral: 94, redDot: 85, mira2x: 78, mira4x: 72 },
+                    'Galaxy A13': { geral: 95, redDot: 86, mira2x: 80, mira4x: 74 },
+                    'Galaxy A22': { geral: 96, redDot: 88, mira2x: 82, mira4x: 76 },
+                    'Galaxy A51': { geral: 98, redDot: 90, mira2x: 85, mira4x: 80 },
+                    'Galaxy S21 FE': { geral: 100, redDot: 92, mira2x: 90, mira4x: 85 },
+                    'Galaxy S24 Ultra': { geral: 100, redDot: 90, mira2x: 88, mira4x: 85 },
+                },
+                'Apple (iPhone)': {
+                    'iPhone 6S': { geral: 85, redDot: 75, mira2x: 68, mira4x: 60 },
+                    'iPhone 7': { geral: 88, redDot: 78, mira2x: 70, mira4x: 65 },
+                    'iPhone 8 Plus': { geral: 92, redDot: 85, mira2x: 78, mira4x: 70 },
+                    'iPhone Xr': { geral: 95, redDot: 88, mira2x: 82, mira4x: 76 },
+                    'iPhone 11': { geral: 98, redDot: 90, mira2x: 85, mira4x: 80 },
+                    'iPhone 13': { geral: 99, redDot: 92, mira2x: 88, mira4x: 84 },
+                    'iPhone 15 Pro Max': { geral: 100, redDot: 95, mira2x: 92, mira4x: 90 },
+                },
+                'Motorola': {
+                    'Moto C Plus': { geral: 80, redDot: 70, mira2x: 60, mira4x: 50 },
+                    'Moto E6 Plus': { geral: 88, redDot: 75, mira2x: 65, mira4x: 55 },
+                    'Moto G6 Play': { geral: 90, redDot: 80, mira2x: 70, mira4x: 65 },
+                    'Moto G9 Play': { geral: 90, redDot: 80, mira2x: 70, mira4x: 65 },
+                    'Moto G30': { geral: 93, redDot: 84, mira2x: 76, mira4x: 70 },
+                    'Moto G60': { geral: 96, redDot: 88, mira2x: 82, mira4x: 75 },
+                    'Moto G84': { geral: 97, redDot: 88, mira2x: 81, mira4x: 75 },
+                },
+                'Xiaomi': {
+                    'Redmi 8A': { geral: 88, redDot: 78, mira2x: 68, mira4x: 60 },
+                    'Redmi 9A': { geral: 90, redDot: 80, mira2x: 70, mira4x: 60 },
+                    'Redmi Note 8': { geral: 94, redDot: 85, mira2x: 78, mira4x: 72 },
+                    'Redmi Note 10': { geral: 96, redDot: 88, mira2x: 82, mira4x: 76 },
+                    'Poco X3 Pro': { geral: 98, redDot: 90, mira2x: 85, mira4x: 80 },
+                    'Redmi Note 13 Pro+': { geral: 100, redDot: 92, mira2x: 88, mira4x: 83 },
+                }
+            };
+
+            const marcaSelect = document.getElementById('marca');
+            const modeloSelect = document.getElementById('modelo');
+            const gerarBtn = document.getElementById('gerar-btn');
+            const resultadoDiv = document.getElementById('resultado-sensi');
+            const btnSensi = document.getElementById('btn-sensi');
+            const btnAuxilio = document.getElementById('btn-auxilio');
+            const tabSensi = document.getElementById('tab-sensi');
+            const tabAuxilio = document.getElementById('tab-auxilio');
+
+            // --- Lógica das Abas (Tabs) ---
+            btnSensi.addEventListener('click', () => {
+                btnSensi.classList.add('active');
+                btnAuxilio.classList.remove('active');
+                tabSensi.classList.add('active');
+                tabAuxilio.classList.remove('active');
+            });
+
+            btnAuxilio.addEventListener('click', () => {
+                btnAuxilio.classList.add('active');
+                btnSensi.classList.remove('active');
+                tabAuxilio.classList.add('active');
+                tabSensi.classList.remove('active');
+            });
+
+            // --- Lógica do Gerador de Sensi ---
+            // Preenche as marcas
+            Object.keys(dataFF).sort().forEach(marca => {
+                const option = document.createElement('option');
+                option.value = marca;
+                option.textContent = marca;
+                marcaSelect.appendChild(option);
+            });
+
+            // Lógica para preencher modelos quando a marca muda
+            marcaSelect.addEventListener('change', () => {
+                modeloSelect.innerHTML = '<option value="">Selecione o modelo</option>';
+                resultadoDiv.innerHTML = ''; // Limpa resultado anterior
+                const selectedMarca = marcaSelect.value;
+                if (selectedMarca && dataFF[selectedMarca]) {
+                    Object.keys(dataFF[selectedMarca]).sort().forEach(modelo => {
+                        const option = document.createElement('option');
+                        option.value = modelo;
+                        option.textContent = modelo;
+                        modeloSelect.appendChild(option);
+                    });
+                }
+            });
+
+            // Lógica principal: O que acontece ao clicar em GERAR
+            gerarBtn.addEventListener('click', () => {
+                const selectedMarca = marcaSelect.value;
+                const selectedModelo = modeloSelect.value;
+
+                if (selectedMarca && selectedModelo) {
+                    const sensi = dataFF[selectedMarca][selectedModelo];
+                    resultadoDiv.innerHTML = `
+                        <h4>Resultado para ${selectedModelo}:</h4>
+                        <ul>
+                            <li>Geral: <strong>${sensi.geral}</strong></li>
+                            <li>Red Dot: <strong>${sensi.redDot}</strong></li>
+                            <li>Mira 2x: <strong>${sensi.mira2x}</strong></li>
+                            <li>Mira 4x: <strong>${sensi.mira4x}</strong></li>
+                        </ul>
+                    `;
+                } else {
+                    resultadoDiv.innerHTML = '<p style="color: red;">Por favor, selecione a marca e o modelo.</p>';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
